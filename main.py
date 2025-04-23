@@ -102,4 +102,7 @@ async def get_recent_payments():
             memo = tx.get("memo", "Aucun")
 
             lines.append(f"• {dt}\n→ {sol:.4f} SOL de {sender}\nMémo : {memo}\n")
-    return "*Transactions récentes :*\n\n" + "\n".join(lines[:5])
+    return "*Transactions récentes :*\n\n" + "\n".join(lines[:5])if "message" in data and data["message"].get("text") == "/whoami":
+    user_id = data["message"]["from"]["id"]
+    await send_message(user_id, f"Ton ID Telegram est : `{user_id}`")
+
