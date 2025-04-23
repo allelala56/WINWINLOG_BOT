@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, Request
 import httpx, os
 from datetime import datetime
@@ -19,14 +18,19 @@ Voici nos services disponibles :
 
 - Compte Netflix, Amazon, Facebook, SFR : *15€*
 - Technique Prickstell : *50€*
-    ➤ Sortir des prickstell et les avoir gratuitement
+- SIM SFR/ORANGE : *20€*
+- Compte Natixis (15 000€) : *300€*
+- Recherche de log personnalisé : *25€ les 1200 logs*
 
 Choisis une option ci-dessous :
 '''
 
 BUTTONS = [
     [{"text": "Acheter un Compte (15€)", "callback_data": "buy_account"}],
-    [{"text": "Technique Prickstell (50€)", "callback_data": "buy_prickstell"}]
+    [{"text": "Technique Prickstell (50€)", "callback_data": "buy_prickstell"}],
+    [{"text": "SIM SFR / ORANGE (20€)", "callback_data": "buy_sim_orange"}],
+    [{"text": "Compte Natixis (300€)", "callback_data": "buy_natixis"}],
+    [{"text": "Log personnalisé 1200 (25€)", "callback_data": "buy_log_custom"}],
 ]
 
 @app.get("/")
@@ -53,11 +57,17 @@ async def telegram_webhook(req: Request):
         chat_id = data["callback_query"]["message"]["chat"]["id"]
         data_text = data["callback_query"]["data"]
 
-        if data_text == "buy_account":
-            msg = await get_payment_instruction("Compte", 15)
-            await send_message(chat_id, msg)
-        elif data_text == "buy_prickstell":
-            msg = await get_payment_instruction("Prickstell", 50)
+        items = {
+            "buy_account": ("Compte", 15),
+            "buy_prickstell": ("Prickstell", 50),
+            "buy_sim_orange": ("SIM SFR / ORANGE", 20),
+            "buy_natixis": ("Compte Natixis (15 000€)", 300),
+            "buy_log_custom": ("Log personnalisé (1200)", 25),
+        }
+
+        if data_text in items:
+            item_name, price = items[data_text]
+            msg = await get_payment_instruction(item_name, price)
             await send_message(chat_id, msg)
 
     return {"ok": True}
