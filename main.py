@@ -29,7 +29,7 @@ Voici nos services disponibles :
 📧 *Mailing List ciblée* : 20€ en SOL
 📇 *Num List ciblée* : 7€ en SOL
 
-*Choisis ton offre ci-dessous ou contacte @BlackDJ en privé pour personnalisation.*
+*Choisis ton offre ci-dessous ou contacte @blackdjdj en privé pour personnalisation.*
 '''
 
 AIDE_MSG = '''
@@ -53,7 +53,7 @@ BUTTONS = [
     [{"text": "Booking -50% (contact)", "callback_data": "buy_booking"}],
     [{"text": "Mailing List ciblée (20€)", "callback_data": "buy_ml"}],
     [{"text": "Num List ciblée (7€)", "callback_data": "buy_nl"}],
-    [{"text": "📩 Contacter le support", "url": "https://t.me/BlackDJ"}],
+    [{"text": "📩 Contacter le support", "url": "https://t.me/blackdjdj"}],
 ]
 
 @app.get("/")
