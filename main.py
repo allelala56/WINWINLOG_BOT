@@ -22,6 +22,7 @@ Voici nos services disponibles :
 ✅ *Compte Netflix, Amazon, Facebook, SFR* : 15€
 ⚖️ *Technique Prickstell* (sortie des prickstell) : 50€
 🚗 *SIM SFR/ORANGE* : 20€
+📶 *SIM PRIXTEL* : 10€
 💵 *Compte Natixis (15 000€)* : 300€
 🤮 *Recherche de log personnalisée (1200 logs)* : 25€
 🌐 *Booking -50%* : sur demande privée 
@@ -46,11 +47,13 @@ BUTTONS = [
     [{"text": "Acheter un Compte (15€)", "callback_data": "buy_account"}],
     [{"text": "Technique Prickstell (50€)", "callback_data": "buy_prickstell"}],
     [{"text": "SIM SFR / ORANGE (20€)", "callback_data": "buy_sim_orange"}],
+    [{"text": "SIM PRIXTEL (10€)", "callback_data": "buy_sim_prixtel"}],
     [{"text": "Compte Natixis (300€)", "callback_data": "buy_natixis"}],
     [{"text": "Log personnalisé 1200 (25€)", "callback_data": "buy_log_custom"}],
     [{"text": "Booking -50% (contact)", "callback_data": "buy_booking"}],
     [{"text": "Mailing List ciblée (20€)", "callback_data": "buy_ml"}],
     [{"text": "Num List ciblée (7€)", "callback_data": "buy_nl"}],
+    [{"text": "📩 Contacter le support", "url": "https://t.me/BlackDJ"}],
 ]
 
 @app.get("/")
@@ -79,6 +82,8 @@ async def telegram_webhook(req: Request):
         elif text == "/aide":
             await send_message(chat_id, AIDE_MSG)
 
+        await send_message(chat_id, WELCOME_MSG, reply_markup={"inline_keyboard": BUTTONS})
+
     elif "callback_query" in data:
         chat_id = data["callback_query"]["message"]["chat"]["id"]
         data_text = data["callback_query"]["data"]
@@ -87,6 +92,7 @@ async def telegram_webhook(req: Request):
             "buy_account": ("Compte", 15),
             "buy_prickstell": ("Prickstell", 50),
             "buy_sim_orange": ("SIM SFR / ORANGE", 20),
+            "buy_sim_prixtel": ("SIM PRIXTEL", 10),
             "buy_natixis": ("Compte Natixis (15 000€)", 300),
             "buy_log_custom": ("Log personnalisé (1200)", 25),
             "buy_ml": ("Mailing List ciblée", 20),
@@ -95,11 +101,11 @@ async def telegram_webhook(req: Request):
 
         if data_text == "buy_booking":
             await send_message(chat_id, "🏨 Pour l'offre *Booking -50%*, merci de nous envoyer en privé :\n\n- Le lien de l'annonce\n- Les dates souhaitées\n- Nombre de nuits et personnes")
-
         elif data_text in items:
             item_name, price = items[data_text]
             msg = await get_payment_instruction(item_name, price)
             await send_message(chat_id, msg)
+        await send_message(chat_id, WELCOME_MSG, reply_markup={"inline_keyboard": BUTTONS})
 
     return {"ok": True}
 
