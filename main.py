@@ -13,16 +13,33 @@ ADMIN_ID = int(os.getenv("ADMIN_ID"))
 EURO_TO_SOL = 0.0082
 
 WELCOME_MSG = '''
-Bienvenue sur *Black DJ Log* !
+✨ *Bienvenue chez SPYDER & JAME* ✨
+
+Spécialistes du *DUMB*, du *LOG ciblé*, et de la *recherche sur-mesure* 🤖🔎
+
 Voici nos services disponibles :
 
-- Compte Netflix, Amazon, Facebook, SFR : *15€*
-- Technique Prickstell : *50€*
-- SIM SFR/ORANGE : *20€*
-- Compte Natixis (15 000€) : *300€*
-- Recherche de log personnalisé : *25€ les 1200 logs*
+✅ *Compte Netflix, Amazon, Facebook, SFR* : 15€
+⚖️ *Technique Prickstell* (sortie des prickstell) : 50€
+🚗 *SIM SFR/ORANGE* : 20€
+💵 *Compte Natixis (15 000€)* : 300€
+🤮 *Recherche de log personnalisée (1200 logs)* : 25€
+🌐 *Booking -50%* : sur demande privée 
+📧 *Mailing List ciblée* : 20€ en SOL
+📇 *Num List ciblée* : 7€ en SOL
 
-Choisis une option ci-dessous :
+*Choisis ton offre ci-dessous ou contacte @BlackDJ en privé pour personnalisation.*
+'''
+
+AIDE_MSG = '''
+🆘 *AIDE - Comment acheter ?*
+
+1. Clique sur un bouton ci-dessous
+2. Envoie le montant en SOL à l'adresse donnée
+3. Mets le *nom du produit en memo*
+4. Dès réception → tu reçois ton accès ou on te contacte
+
+💬 Pour toute question ou personnalisation, contacte @BlackDJ
 '''
 
 BUTTONS = [
@@ -31,6 +48,9 @@ BUTTONS = [
     [{"text": "SIM SFR / ORANGE (20€)", "callback_data": "buy_sim_orange"}],
     [{"text": "Compte Natixis (300€)", "callback_data": "buy_natixis"}],
     [{"text": "Log personnalisé 1200 (25€)", "callback_data": "buy_log_custom"}],
+    [{"text": "Booking -50% (contact)", "callback_data": "buy_booking"}],
+    [{"text": "Mailing List ciblée (20€)", "callback_data": "buy_ml"}],
+    [{"text": "Num List ciblée (7€)", "callback_data": "buy_nl"}],
 ]
 
 @app.get("/")
@@ -41,17 +61,23 @@ def read_root():
 async def telegram_webhook(req: Request):
     data = await req.json()
 
-    if "message" in data and data["message"].get("text") == "/start":
+    if "message" in data:
+        text = data["message"].get("text", "")
         chat_id = data["message"]["chat"]["id"]
-        await send_message(chat_id, WELCOME_MSG, reply_markup={"inline_keyboard": BUTTONS})
-
-    elif "message" in data and data["message"].get("text") == "/admin":
         user_id = data["message"]["from"]["id"]
-        if user_id != ADMIN_ID:
-            await send_message(user_id, "Accès refusé.")
-        else:
-            tx_list = await get_recent_payments()
-            await send_message(user_id, tx_list)
+
+        if text == "/start":
+            await send_message(chat_id, WELCOME_MSG, reply_markup={"inline_keyboard": BUTTONS})
+
+        elif text == "/admin":
+            if user_id != ADMIN_ID:
+                await send_message(user_id, "Accès refusé.")
+            else:
+                tx_list = await get_recent_payments()
+                await send_message(user_id, tx_list)
+
+        elif text == "/aide":
+            await send_message(chat_id, AIDE_MSG)
 
     elif "callback_query" in data:
         chat_id = data["callback_query"]["message"]["chat"]["id"]
@@ -63,9 +89,14 @@ async def telegram_webhook(req: Request):
             "buy_sim_orange": ("SIM SFR / ORANGE", 20),
             "buy_natixis": ("Compte Natixis (15 000€)", 300),
             "buy_log_custom": ("Log personnalisé (1200)", 25),
+            "buy_ml": ("Mailing List ciblée", 20),
+            "buy_nl": ("Num List ciblée", 7),
         }
 
-        if data_text in items:
+        if data_text == "buy_booking":
+            await send_message(chat_id, "🏨 Pour l'offre *Booking -50%*, merci de nous envoyer en privé :\n\n- Le lien de l'annonce\n- Les dates souhaitées\n- Nombre de nuits et personnes")
+
+        elif data_text in items:
             item_name, price = items[data_text]
             msg = await get_payment_instruction(item_name, price)
             await send_message(chat_id, msg)
